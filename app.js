@@ -5,9 +5,13 @@ const pino = require('pino');
 const fs = require('fs');
 const async = require('async');
 const config = require('config');
+const path = require('path');
 
 // Internal
 
+const consumer = require(path.resolve('lib', 'consumer'));
+const cronGenerator = require(path.resolve('lib', 'cronGenerator'));
+const scheduler = require(path.resolve('lib', 'scheduler'));
 const webServerConfig = require('./lib/webserver');
 
 // Global
@@ -30,6 +34,9 @@ function init () {
   log.info('Starting Service...');
 
   async.waterfall([
+    initConsumer,
+    initCronGenerator,
+    initScheduler,
     initHTTPserver
   ],
   function (err, result) {
@@ -38,6 +45,42 @@ function init () {
     } else {
       log.info('Service Started');
     }
+  });
+}
+
+function initCronGenerator (cb) {
+  cronGenerator.Init(function (err) {
+    if (err) {
+      log.fatal({ Error: err.message }, 'Cron Generator Initialization Failed');
+      return cb(err);
+    }
+
+    log.info('Cron Generator Initialized');
+    return cb();
+  });
+}
+
+function initScheduler (cb) {
+  scheduler.Init(function (err) {
+    if (err) {
+      log.fatal({ Error: err.message }, 'Scheduler Initialization Failed');
+      return cb(err);
+    }
+
+    log.info('Scheduler Initialized');
+    return cb();
+  });
+}
+
+function initConsumer (cb) {
+  consumer.Init(function (err) {
+    if (err) {
+      log.fatal({ Error: err.message }, 'Consumer Initialization Failed');
+      return cb(err);
+    }
+
+    log.info('Consumer Initialized');
+    return cb();
   });
 }
 
@@ -72,3 +115,10 @@ function initHTTPserver (cb) {
   });
   server.timeout = 0;
 }
+
+process.on('SIGINT', () => {
+  // Pause the local queues, complete all existing work, then exit
+  Promise.all([
+
+  ]).then(() => process.exit(0));
+});

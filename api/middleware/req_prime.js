@@ -1,31 +1,31 @@
 // Import External Modules
 
-var uuid = require('node-uuid');
-
+const uuid = require('node-uuid');
+const config = require('config');
+const pino = require('pino');
 // Import Internal Modules
 
 // Export
 
-var config = {};
-
 module.exports = {
-  run: fn_run,
-  config: config
+  run: fn_run
 };
 
 // Configs
+
+const log = pino(config.get('logging'));
 
 // Init
 
 // Routes
 
 function fn_run (req, res, next) {
-  config = req.app.locals.config;
-
   var global = req.app.locals;
+  req.id = uuid.v4();
 
   req.databag = {
     output: {
+      requestId: req.id,
       message: ''
     },
     databag: {
@@ -34,8 +34,6 @@ function fn_run (req, res, next) {
   };
 
   req.requestTime = Date.now();
-
-  req.id = uuid.v4();
 
   // HTTP Request Error
   req.on('error', fn_request_processError);
@@ -49,15 +47,6 @@ function fn_run (req, res, next) {
   // HTTP Connection Closed
   res.on('abort', fn_response_processClose);
 
-  // HTTP Transaction Finished
-  if (global.statsClient) {
-    res.on('finish', fn_response_finish_logStatsD);
-  }
-
-  if (global.log) {
-    res.on('finish', fn_response_finish_logFile);
-  }
-
   // Done
   next();
 
@@ -67,7 +56,7 @@ function fn_run (req, res, next) {
     var logObj = fn_buildLog(req, res);
     logObj.Error = err;
 
-    global.log.error(logObj, 'Request Errored');
+    log.error(logObj, 'Request Errored');
   }
 
   function fn_request_processTimeout () {
@@ -77,7 +66,7 @@ function fn_run (req, res, next) {
       var logObj = fn_buildLog(req, res);
       logObj.Error = 'Request Timed Out';
 
-      global.log.warn(logObj, 'Request Errored');
+      log.warn(logObj, 'Request Errored');
     }
   }
 
@@ -85,13 +74,13 @@ function fn_run (req, res, next) {
     var logObj = fn_buildLog(req, res);
     logObj.Error = err;
 
-    global.log.error(logObj, 'Response Errored');
+    log.error(logObj, 'Response Errored');
   }
 
   function fn_response_processClose () {
     var logObj = fn_buildLog(req, res);
 
-    global.log.warn(logObj, 'Connection Closed');
+    log.warn(logObj, 'Connection Closed');
   }
 
   function fn_response_finish_logStatsD () {
@@ -131,12 +120,12 @@ function fn_run (req, res, next) {
 
     if (logObj.statusCode >= 200 && logObj.statusCode < 400) {
       if (req.path !== '/') {
-        global.log.info(logObj, 'Request Complete');
+        log.info(logObj, 'Request Complete');
       }
     } else if (logObj.statusCode >= 400 && res.statusCode < 500) {
-      global.log.warn(logObj, 'Request Failed');
+      log.warn(logObj, 'Request Failed');
     } else if (logObj.statusCode >= 500) {
-      global.log.error(logObj, 'Request Errored');
+      log.error(logObj, 'Request Errored');
     }
   }
 }

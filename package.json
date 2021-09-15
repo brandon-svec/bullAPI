@@ -1,5 +1,5 @@
 {
-  "name": "baseapi",
+  "name": "gadgetschedulerjs",
   "version": "0.0.1",
   "description": "",
   "main": "app.js",
@@ -21,11 +21,18 @@
     "ajv": "6.12.6",
     "async": "2.6.3",
     "body-parser": "1.19.0",
+    "bull": "3.29.2",
     "config": "2.0.2",
+    "cron-parser": "4.0.0",
     "express": "4.17.1",
+    "express-json-validator-middleware": "2.2.1",
+    "ioredis": "4.27.9",
+    "memoizee": "0.4.15",
     "node-uuid": "^1.4.8",
+    "parse-redis-url-simple": "1.0.2",
     "pino": "5.17.0",
-    "request": "2.88.2"
+    "request": "2.88.2",
+    "swagger-ui-express": "4.1.6"
   },
   "devDependencies": {
     "chai": "4.3.4",

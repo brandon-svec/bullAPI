@@ -4,7 +4,7 @@
 
 var config = {};
 
-config.applicationName = 'baseAPI';
+config.name = 'jobScheduler';
 
 // HTTP Proxy
 
@@ -27,6 +27,14 @@ config.logging = {
 // ** Instrumental
 
 config.statsD = null;
+
+// ** Redis
+
+config.redis = {
+  url: 'redis://localhost:6380/',
+  options: {
+  }
+};
 
 // Export
 
