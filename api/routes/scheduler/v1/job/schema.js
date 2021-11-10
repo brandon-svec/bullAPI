@@ -1,6 +1,4 @@
 
-
-
 const base = {
   id: 'job.default',
   type: 'object',
