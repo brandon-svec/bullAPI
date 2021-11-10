@@ -1,2 +1,1 @@
-# baseAPI
-Base skeleton repository for APIs
+# Gadget Scheduler V2 Spike
