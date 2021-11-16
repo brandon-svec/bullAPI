@@ -10,7 +10,7 @@ config.name = 'jobScheduler';
 
 config.http = {};
 
-config.http.port = 3000;
+config.http.port = process.env.PORT || 3000;
 config.http.timeout = 120000;
 config.http.keepAliveTimeoutMS = 60000;
 config.http.server = '127.0.0.1';
@@ -31,8 +31,21 @@ config.statsD = null;
 // ** Redis
 
 config.redis = {
-  url: 'redis://localhost:6380/',
+  connection: '',
+  url: '',
   options: {
+  }
+};
+
+// ** Actions
+
+config.actions = {
+  executePennyWorkflow: {
+    host: 'http://localhost:3001',
+    auth: {
+      type: 'key',
+      key: ''
+    }
   }
 };
 

@@ -20,7 +20,6 @@ const log = pino(config.get('logging'));
 // Routes
 
 function fn_run (req, res, next) {
-  var global = req.app.locals;
   req.id = uuid.v4();
 
   req.databag = {
@@ -81,52 +80,6 @@ function fn_run (req, res, next) {
     var logObj = fn_buildLog(req, res);
 
     log.warn(logObj, 'Connection Closed');
-  }
-
-  function fn_response_finish_logStatsD () {
-    var logObj = fn_buildLog(req, res);
-
-    var newPath = '';
-
-    if (!global.registeredRoutes) {
-      global.registeredRoutes = {};
-
-      req.app._router.stack.forEach(function (r) {
-        if (r.route && r.route.path) {
-          global.registeredRoutes[r.route.path] = true;
-        }
-      });
-    }
-
-    if (global.registeredRoutes[req.path]) {
-      newPath = req.path.replace('.', '');
-    } else {
-      newPath = 'Unregistered';
-    }
-
-    global.statsClient.increment('route.' + newPath + '.statuscode.' + logObj.statusCode);
-    global.statsClient.timing('route.' + newPath + '.processTimeMS', logObj.timeTaken);
-  }
-
-  function fn_response_finish_logFile () {
-    var logObj = fn_buildLog(req, res);
-
-    if (req.databag.logData) {
-      var keys = Object.keys(req.databag.logData);
-      for (var c = 0; c < keys.length; c++) {
-        logObj[keys[c]] = req.databag.logData[keys[c]];
-      }
-    }
-
-    if (logObj.statusCode >= 200 && logObj.statusCode < 400) {
-      if (req.path !== '/') {
-        log.info(logObj, 'Request Complete');
-      }
-    } else if (logObj.statusCode >= 400 && res.statusCode < 500) {
-      log.warn(logObj, 'Request Failed');
-    } else if (logObj.statusCode >= 500) {
-      log.error(logObj, 'Request Errored');
-    }
   }
 }
 

@@ -13,6 +13,7 @@ const consumer = require(path.resolve('lib', 'consumer'));
 const cronGenerator = require(path.resolve('lib', 'cronGenerator'));
 const scheduler = require(path.resolve('lib', 'scheduler'));
 const webServerConfig = require('./lib/webserver');
+const queueFactory = require(path.resolve('lib', 'queueFactory'));
 
 // Global
 
@@ -35,13 +36,13 @@ function init () {
 
   async.waterfall([
     initConsumer,
-    initCronGenerator,
+    // initCronGenerator,
     initScheduler,
     initHTTPserver
   ],
   function (err, result) {
     if (err) {
-      log.error('Service Failed to Start');
+      log.fatal('Service Failed to Start');
     } else {
       log.info('Service Started');
     }
@@ -117,8 +118,15 @@ function initHTTPserver (cb) {
 }
 
 process.on('SIGINT', () => {
-  // Pause the local queues, complete all existing work, then exit
-  Promise.all([
+  async.waterfall([
+    queueFactory.Shutdown
+  ],
+  function (err, result) {
+    if (err) {
+      return log.fatal({ Error: err.message }, 'Failed to Complete Graceful Shutdown');
+    }
 
-  ]).then(() => process.exit(0));
+    log.info('Graceful Shutdown Complete');
+    return process.exit(0);
+  });
 });

@@ -8,8 +8,8 @@ const scheduler = require(path.resolve('lib', 'scheduler'));
 const validator = new Validator({ allErrors: true, useDefaults: true });
 const { validate } = validator;
 
-router.post('/', validate({ body: schemas.post }), (req, res) => {
-  scheduler.AddRepeatingJob(req.body.queue, req.body.uniqueName, req.body.data, req.body.intervalMinutes, function (err, schedule) {
+router.post('/', validate({ body: schemas.post }), (req, res, next) => {
+  scheduler.AddRepeatingJob(queue, req.body.uniqueName, req.body.payload, req.body.intervalMinutes, function (err, schedule) {
     if (err) {
       return next(err);
     }
