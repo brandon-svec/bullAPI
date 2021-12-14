@@ -10,7 +10,6 @@ const path = require('path');
 // Internal
 
 const consumer = require(path.resolve('lib', 'consumer'));
-const cronGenerator = require(path.resolve('lib', 'cronGenerator'));
 const scheduler = require(path.resolve('lib', 'scheduler'));
 const webServerConfig = require('./lib/webserver');
 const queueFactory = require(path.resolve('lib', 'queueFactory'));
@@ -36,7 +35,6 @@ function init () {
 
   async.waterfall([
     initConsumer,
-    // initCronGenerator,
     initScheduler,
     initHTTPserver
   ],
@@ -46,18 +44,6 @@ function init () {
     } else {
       log.info('Service Started');
     }
-  });
-}
-
-function initCronGenerator (cb) {
-  cronGenerator.Init(function (err) {
-    if (err) {
-      log.fatal({ Error: err.message }, 'Cron Generator Initialization Failed');
-      return cb(err);
-    }
-
-    log.info('Cron Generator Initialized');
-    return cb();
   });
 }
 

@@ -13,8 +13,15 @@ router.use((error, request, response, next) => {
   return next(error);
 });
 
-router.use((error, req, res, next) => {
+router.use((error, req, res) => {
   let output = req.databag.output;
+
+  if (error.isUserError === true) {
+    output.message = 'Request Failed';
+    output.error = error.message;
+    return res.status(400).send(output);
+  }
+
   output.message = 'Request Errored';
   output.error = error.message;
   return res.status(500).send(output);

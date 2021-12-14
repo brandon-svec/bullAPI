@@ -1,15 +1,10 @@
 
 const base = {
-  // id: 'job.default',
   type: 'object',
   properties: {
     payload: {
       type: 'object',
       default: {}
-    },
-    queue: {
-      type: 'string',
-      default: 'default'
     },
     uniqueName: {
       type: 'string'
@@ -20,13 +15,12 @@ const base = {
       enum: [1]
     }
   },
-  required: ['payload', 'queue', 'version'],
+  required: ['payload', 'version'],
   additionalProperties: false
 };
 
 const future = JSON.parse(JSON.stringify(base));
 
-// future.id = 'job.future.default';
 future.required.push('delaySec');
 future.properties.delaySec = {
   type: 'integer',
@@ -35,7 +29,7 @@ future.properties.delaySec = {
 
 const repeating = JSON.parse(JSON.stringify(base));
 
-// repeating.id = 'job.repeating.default';
+repeating.required.push('uniqueName');
 repeating.required.push('intervalMinutes');
 repeating.properties.intervalMinutes = {
   type: 'integer',
