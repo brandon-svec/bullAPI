@@ -5,22 +5,11 @@ const assert = require('chai').assert;
 const path = require('path');
 const sinon = require('sinon');
 
-const client = require(path.resolve('lib', 'consumers', 'scheduleTelemetry'));
-const queueFactory = require(path.resolve('lib', 'queueFactory'));
-const scheduler = require(path.resolve('lib', 'scheduler'));
+const client = require(path.resolve('lib', 'consumers', 'gatherTelemetry'));
+const executePennyWorkflow = require(path.resolve('lib', 'actions', 'executePennyWorkflow'));
 
 describe('Consumer', function () {
-  before(function () {
-    sinon.stub(queueFactory, 'Init').callsFake(function (cb) {
-      return cb();
-    });
-  });
-
-  after(function () {
-    return sinon.restore();
-  });
-
-  describe('scheduleTelemetry.js', function () {
+  describe('gatherTelemetry.js', function () {
     describe('Init', function () {
       it('Initializes Successfully', function (done) {
         return client.Init(done);
@@ -34,20 +23,34 @@ describe('Consumer', function () {
             timestamp: '2020-01-01 12:00:00',
             data: {
               payload: {
-                datatype: 'emailActivity'
+                startTime: '2020-01-01 11:00:00',
+                endTime: '2020-01-01 11:05:00',
+                stackid: 1,
+                dbid: 200,
+                databaseName: 'ExactTarget200',
+                name: 'processTelemetry_emailActivity'
               }
             }
           };
 
-          const stub = sinon.stub(scheduler, 'AddSingleJob').callsFake(function (queue, name, payload, cb) {
-            // assert.equal(queue, 'processTelemetry_emailActivity');
-            // assert.equal(name, `${dbObj.databaseName}_${startTime.toISOString()}`)
-            return cb();
+          const stub = sinon.stub(executePennyWorkflow, 'Execute').callsFake(function (workflowName, params, cb) {
+            assert.equal(workflowName, jobObject.data.payload.name);
+            assert.deepEqual(params, jobObject.data.payload);
+            return cb(null, {
+              requestId: '6c84fb90-12c4-11e1-840d-7b25c5ee775a',
+              message: 'Request Successful',
+              results: {
+                tasks: {
+
+                }
+              }
+            });
           });
 
-          client.ProcessWork(jobObject, function (err) {
+          client.ProcessWork(jobObject, function (err, results) {
             assert.isNull(err);
-            assert.equal(stub.callCount, 4);
+            assert.isObject(results);
+            assert.isTrue(stub.calledOnce);
             stub.restore();
             return done();
           });
@@ -71,7 +74,7 @@ describe('Consumer', function () {
           });
         });
 
-        it('No Data Type', function (done) {
+        it('No Empty Object', function (done) {
           const jobObject = {
             data: {
               payload: {}
@@ -80,7 +83,7 @@ describe('Consumer', function () {
 
           client.ProcessWork(jobObject, function (err, results) {
             assert.isNotNull(err);
-            assert.equal(err.message, `undefined must have required property 'datatype' - {"missingProperty":"datatype"}`);
+            assert.equal(err.message, `undefined must have required property 'startTime' - {"missingProperty":"startTime"}`);
             assert.isTrue(err.isUserError);
             assert.isUndefined(results);
             return done();
