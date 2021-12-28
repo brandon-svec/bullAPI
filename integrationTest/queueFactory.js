@@ -56,9 +56,9 @@ describe('Queue Factory', function () {
     });
   });
 
-  describe('Shutdown', function(){
-      it('Shutsdown gracefully', function(done){
-          queueFactory.Shutdown(done);
-      })
-  })
+  describe('Shutdown', function () {
+    it('Shutsdown gracefully', function (done) {
+      queueFactory.Shutdown(done);
+    });
+  });
 });
