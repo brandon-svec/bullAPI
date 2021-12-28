@@ -40,13 +40,7 @@ config.redis = {
 // ** Actions
 
 config.actions = {
-  executePennyWorkflow: {
-    host: 'http://localhost:3001',
-    auth: {
-      type: 'key',
-      key: ''
-    }
-  }
+
 };
 
 // Export
