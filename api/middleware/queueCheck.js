@@ -5,16 +5,21 @@ const path = require('path');
 const consumer = require(path.resolve('lib', 'consumer'));
 
 module.exports = function (req, res, next) {
+  let output = req.databag.output;
   let schema = consumer.GetSchema(req.params.queue);
 
   if (!schema) {
-    return res.sendStatus(404);
+    output.message = 'Request Failed';
+    output.error = 'Queue Not Found';
+    return res.status(404).send(output);
   }
 
   try {
     validateSchema(schema, req.body.payload);
   } catch (err) {
-    return res.status(400).send(err.message);
+    output.message = 'Request Failed';
+    output.error = err.message;
+    return res.status(400).send(output);
   }
 
   return next();

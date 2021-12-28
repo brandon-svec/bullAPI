@@ -10,14 +10,18 @@ const validator = new Validator({ allErrors: true, useDefaults: true });
 const { validate } = validator;
 
 router.post('/:queue/', validate({ body: schemas.post }), queueCheck, (req, res, next) => {
-  scheduler.AddSingleJob(req.params.queue, req.body.uniqueName, req.body.payload, function (err) {
-    if (err) {
-      return next(err);
-    }
+  try {
+    scheduler.AddSingleJob(req.params.queue, req.body.uniqueName, req.body.payload, function (err) {
+      if (err) {
+        return next(err);
+      }
 
-    req.databag.output.message = 'Request Successful';
-    return res.status(200).send(req.databag.output);
-  });
+      req.databag.output.message = 'Request Successful';
+      return res.status(200).send(req.databag.output);
+    });
+  } catch (err) {
+    return next(err);
+  }
 });
 
 module.exports = router;
