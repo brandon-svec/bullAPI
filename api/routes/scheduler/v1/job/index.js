@@ -5,25 +5,29 @@ router.use('/repeating', require('./repeating.js'));
 router.use('/single', require('./single.js'));
 router.use('/future', require('./future.js'));
 
-router.use((error, request, response, next) => {
-  if (error instanceof ValidationError) {
-    return response.status(400).send(error.validationErrors);
+router.use((err, req, res, next) => {
+  if (err instanceof ValidationError) {
+    let output = req.databag.output;
+    output.message = 'Request Failed';
+    output.error = err.validationErrors.body[0];
+    return res.status(400).send(output);
   }
 
-  return next(error);
+  return next(err);
 });
 
-router.use((error, req, res) => {
+router.use((err, req, res, next) => {
   let output = req.databag.output;
 
-  if (error.isUserError === true) {
+  if (err.isUserError === true) {
     output.message = 'Request Failed';
-    output.error = error.message;
+    output.error = err.message;
     return res.status(400).send(output);
   }
 
   output.message = 'Request Errored';
-  output.error = error.message;
+  output.error = err.message;
+
   return res.status(500).send(output);
 });
 
