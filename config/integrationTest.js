@@ -5,6 +5,17 @@ const config = {
   logging: {}
 };
 
+config.logging = {
+  transport: {
+    target: 'pino-pretty',
+    options: {
+      colorize: true
+    }
+  },
+  enabled: false,
+  level: 'info'
+};
+
 config.redis = {
   connection: 'redis://localhost:6380/'
 };
