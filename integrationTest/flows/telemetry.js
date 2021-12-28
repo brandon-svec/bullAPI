@@ -19,7 +19,7 @@ describe('Schedule Telemetry Workflow', function () {
   });
 
   it('Generates a telemetry request', function (done) {
-    let correctCalls = [];
+    /* let correctCalls = [];
 
     let callPayload = {
       startTime: '2021-12-28T17:50:00.000Z',
@@ -32,7 +32,7 @@ describe('Schedule Telemetry Workflow', function () {
       env: 'test',
       sendNameList: '',
       datatype: 'emailActivity'
-    };
+    }; */
 
     let pennyCalls = [];
 
@@ -44,21 +44,17 @@ describe('Schedule Telemetry Workflow', function () {
     });
 
     scheduler.AddSingleJob('scheduleTelemetry', 'processTelemetry_test1', { datatype: 'emailActivity' }, function (err) {
-      try {
-        assert.isUndefined(err);
+      assert.isUndefined(err);
 
-        async.retry({ times: 100, interval: 10 }, function (cb) {
-          try {
-            assert.equal(spyGatherTelemetry.callCount, 4);
-            assert.equal(stubExecutePennyWorkflow.callCount, 4);
-            return setImmediate(cb);
-          } catch (err) {
-            return setImmediate(cb, err);
-          }
-        }, done);
-      } catch (err) {
-        done(err);
-      }
+      async.retry({ times: 100, interval: 10 }, function (cb) {
+        try {
+          assert.equal(spyGatherTelemetry.callCount, 4);
+          assert.equal(stubExecutePennyWorkflow.callCount, 4);
+          return setImmediate(cb);
+        } catch (err) {
+          return setImmediate(cb, err);
+        }
+      }, done);
     });
   });
 });

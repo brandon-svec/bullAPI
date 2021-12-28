@@ -28,7 +28,7 @@ router.get('/:queue/', (req, res, next) => {
     }
 
     req.databag.output.message = 'Request Successful';
-    req.datagab.output.jobList = jobList;
+    req.databag.output.jobList = jobList;
     return res.status(200).send(req.databag.output);
   });
 });
@@ -36,7 +36,6 @@ router.get('/:queue/', (req, res, next) => {
 router.delete('/:queue/:name', (req, res, next) => {
   scheduler.DeleteRepeatingJob(req.params.queue, req.params.name, function (err) {
     if (err) {
-      console.log(err);
       return next(err);
     }
 
