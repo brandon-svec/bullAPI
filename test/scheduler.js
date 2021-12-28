@@ -7,7 +7,6 @@ const sinon = require('sinon');
 const tk = require('timekeeper');
 
 const scheduler = require(path.resolve('lib', 'scheduler'));
-const EnhancedError = require(path.resolve('lib', 'EnhancedError.js'));
 const queueFactory = require(path.resolve('lib', 'queueFactory'));
 
 describe('Scheduler', function () {
@@ -88,6 +87,29 @@ describe('Scheduler', function () {
           try {
             assert.isNotNull(err);
             assert.equal(err.message, 'Something Broke');
+            assert.isTrue(stub.calledOnce);
+            done();
+          } catch (err) {
+            done(err);
+          }
+        });
+      });
+
+      it('Add Fails - Thrown', function (done) {
+        let stub = createAddJobStub({
+          createdDate: new Date('2021-12-27 18:00:00'),
+          payload: {},
+          name: 'test',
+          version: 1
+        }, {
+          jobId: 'test',
+          removeOnComplete: true
+        }, null, 'throw');
+
+        scheduler.AddSingleJob('default', 'test', {}, function (err) {
+          try {
+            assert.isNotNull(err);
+            assert.equal(err.message, 'throw');
             assert.isTrue(stub.calledOnce);
             done();
           } catch (err) {
@@ -311,6 +333,163 @@ describe('Scheduler', function () {
       });
     });
   });
+
+  describe('Delete Job', function () {
+    describe('DeleteRepeatingJob', function () {
+      this.afterEach(function () {
+        sinon.restore();
+      });
+
+      it('Deletes Successfully', function (done) {
+        let stub = sinon.stub(queueFactory, 'GetQueue').callsFake(function () {
+          return {
+            getRepeatableJobs: function () {
+              return Promise.resolve([{ id: 'test' }]);
+            },
+            removeRepeatableByKey: function (key) {
+              return Promise.resolve();
+            }
+          };
+        });
+
+        let qfExists = sinon.stub(queueFactory, 'Exists').callsFake(function (queue) {
+          assert.equal(queue, 'default');
+          return true;
+        });
+
+        scheduler.DeleteRepeatingJob('default', 'test', function (err) {
+          try {
+            assert.isUndefined(err);
+            assert.equal(stub.callCount, 2);
+            assert.equal(qfExists.callCount, 2);
+            done();
+          } catch (err) {
+            done(err);
+          }
+        });
+      });
+
+      it('Deletes Fails - Queue Not Found', function (done) {
+        let stub = sinon.stub(queueFactory, 'GetQueue').callsFake(function () {
+          return {
+            getRepeatableJobs: function () {
+              return Promise.resolve([{ id: 'test' }]);
+            },
+            removeRepeatableByKey: function (key) {
+              return Promise.resolve();
+            }
+          };
+        });
+
+        let qfExists = sinon.stub(queueFactory, 'Exists').callsFake(function (queue) {
+          assert.equal(queue, 'default');
+          return false;
+        });
+
+        scheduler.DeleteRepeatingJob('default', 'test', function (err) {
+          try {
+            assert.isNotEmpty(err);
+            assert.equal(err.message, 'Queue Not Found');
+            assert.equal(stub.callCount, 0);
+            assert.equal(qfExists.callCount, 1);
+            done();
+          } catch (err) {
+            done(err);
+          }
+        });
+      });
+
+      it('Deletes Fails - Get Jobs Failed', function (done) {
+        let stub = sinon.stub(queueFactory, 'GetQueue').callsFake(function () {
+          return {
+            getRepeatableJobs: function () {
+              return Promise.reject(new Error('Something Broke'));
+            },
+            removeRepeatableByKey: function (key) {
+              return Promise.resolve();
+            }
+          };
+        });
+
+        let qfExists = sinon.stub(queueFactory, 'Exists').callsFake(function (queue) {
+          assert.equal(queue, 'default');
+          return true;
+        });
+
+        scheduler.DeleteRepeatingJob('default', 'test', function (err) {
+          try {
+            assert.isNotEmpty(err);
+            assert.equal(err.message, 'Something Broke');
+            assert.equal(stub.callCount, 1);
+            assert.equal(qfExists.callCount, 2);
+            done();
+          } catch (err) {
+            done(err);
+          }
+        });
+      });
+
+      it('Deletes Fails - Job Not Found', function (done) {
+        let stub = sinon.stub(queueFactory, 'GetQueue').callsFake(function () {
+          return {
+            getRepeatableJobs: function () {
+              return Promise.resolve([]);
+            },
+            removeRepeatableByKey: function (key) {
+              return Promise.resolve();
+            }
+          };
+        });
+
+        let qfExists = sinon.stub(queueFactory, 'Exists').callsFake(function (queue) {
+          assert.equal(queue, 'default');
+          return true;
+        });
+
+        scheduler.DeleteRepeatingJob('default', 'test', function (err) {
+          try {
+            assert.isNotEmpty(err);
+            assert.equal(err.message, 'Job Not Found');
+            assert.equal(stub.callCount, 1);
+            assert.equal(qfExists.callCount, 2);
+            done();
+          } catch (err) {
+            done(err);
+          }
+        });
+      });
+
+      it('Deletes Fails - Remove Failed', function (done) {
+        let stub = sinon.stub(queueFactory, 'GetQueue').callsFake(function () {
+          return {
+            getRepeatableJobs: function () {
+              return Promise.resolve([{ id: 'test' }]);
+            },
+            removeRepeatableByKey: function (key) {
+              return Promise.reject(new Error('Failed to Delete Job'));
+            }
+          };
+        });
+
+        let qfExists = sinon.stub(queueFactory, 'Exists').callsFake(function (queue) {
+          assert.equal(queue, 'default');
+          return true;
+        });
+
+        scheduler.DeleteRepeatingJob('default', 'test', function (err) {
+          try {
+            assert.isNotNull(err);
+            assert.equal(err.message, 'Failed to Delete Job');
+            assert.equal(stub.callCount, 2);
+            assert.equal(qfExists.callCount, 2);
+            done();
+          } catch (err) {
+            done(err);
+          }
+        });
+      });
+    });
+  });
 });
 
 function createAddJobStub (envTest, optTest, response, err, getReatingJobsResponse, getRepeatingJobsError) {
@@ -326,6 +505,9 @@ function createAddJobStub (envTest, optTest, response, err, getReatingJobsRespon
         }
 
         if (err) {
+          if (err === 'throw') {
+            throw new Error(err);
+          }
           return Promise.reject(new Error(err));
         }
 
