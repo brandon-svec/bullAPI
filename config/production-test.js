@@ -4,7 +4,7 @@ config.actions = {
 };
 
 config.logging = {
-  level: 'debug'
+	level: 'debug'
 };
 
 module.exports = config;
