@@ -89,7 +89,6 @@ describe('Scheduler', function () {
 				}, null, null);
 
 				scheduler.AddSingleJob('myQueue', 'test', {}, function (err) {
-					console.log(err);
 					assert.isUndefined(err);
 					assert.isTrue(stub.calledOnce);
 					done();
