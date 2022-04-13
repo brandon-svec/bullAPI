@@ -31,88 +31,88 @@ init();
 // Functions
 
 function init () {
-  log.info('Starting Service...');
+	log.info('Starting Service...');
 
-  async.waterfall([
-    initConsumer,
-    initScheduler,
-    initHTTPserver
-  ],
-  function (err, result) {
-    if (err) {
-      log.fatal('Service Failed to Start');
-    } else {
-      log.info('Service Started');
-    }
-  });
+	async.waterfall([
+		initConsumer,
+		initScheduler,
+		initHTTPserver
+	],
+	function (err) {
+		if (err) {
+			log.fatal('Service Failed to Start');
+		} else {
+			log.info('Service Started');
+		}
+	});
 }
 
 function initScheduler (cb) {
-  scheduler.Init(function (err) {
-    if (err) {
-      log.fatal({ Error: err.message }, 'Scheduler Initialization Failed');
-      return cb(err);
-    }
+	scheduler.Init(function (err) {
+		if (err) {
+			log.fatal({ Error: err.message }, 'Scheduler Initialization Failed');
+			return cb(err);
+		}
 
-    log.info('Scheduler Initialized');
-    return cb();
-  });
+		log.info('Scheduler Initialized');
+		return cb();
+	});
 }
 
 function initConsumer (cb) {
-  consumer.Init(function (err) {
-    if (err) {
-      log.fatal({ Error: err.message }, 'Consumer Initialization Failed');
-      return cb(err);
-    }
+	consumer.Init(function (err) {
+		if (err) {
+			log.fatal({ Error: err.message }, 'Consumer Initialization Failed');
+			return cb(err);
+		}
 
-    log.info('Consumer Initialized');
-    return cb();
-  });
+		log.info('Consumer Initialized');
+		return cb();
+	});
 }
 
 function initHTTPserver (cb) {
-  if (server) {
-    server.close();
-  }
+	if (server) {
+		server.close();
+	}
 
-  // SSL HTTP Server
-  var sslOptions = null;
-  if (config.get('ssl')) {
-    sslOptions = {
-      pfx: fs.readFileSync(config.get('ssl.pfx')),
-      passphrase: config.get('ssl.passphrase')
-    };
-  }
+	// SSL HTTP Server
+	var sslOptions = null;
+	if (config.get('ssl')) {
+		sslOptions = {
+			pfx: fs.readFileSync(config.get('ssl.pfx')),
+			passphrase: config.get('ssl.passphrase')
+		};
+	}
 
-  if (sslOptions) {
-    server = https.createServer(sslOptions, app);
-  } else {
-    server = http.createServer(app);
-  }
+	if (sslOptions) {
+		server = https.createServer(sslOptions, app);
+	} else {
+		server = http.createServer(app);
+	}
 
-  server.listen(config.get('http.port'), config.get('http.server'), function (err) {
-    if (err) {
-      log.error({ Error: err }, 'HTTP Server Failure');
-    } else {
-      log.info('HTTP Server Success');
-    }
+	server.listen(config.get('http.port'), config.get('http.server'), function (err) {
+		if (err) {
+			log.error({ Error: err }, 'HTTP Server Failure');
+		} else {
+			log.info('HTTP Server Success');
+		}
 
-    return cb(err);
-  });
-  server.timeout = 0;
+		return cb(err);
+	});
+	server.timeout = 0;
 }
 
 process.on('SIGINT', () => {
-  async.waterfall([
-    queueFactory.Shutdown
-  ],
-  function (err, result) {
-    if (err) {
-      return log.fatal({ Error: err.message }, 'Failed to Complete Graceful Shutdown');
-    }
+	async.waterfall([
+		queueFactory.Shutdown
+	],
+	function (err) {
+		if (err) {
+			return log.fatal({ Error: err.message }, 'Failed to Complete Graceful Shutdown');
+		}
 
-    log.info('Graceful Shutdown Complete');
-    return process.exit(0);
-  });
+		log.info('Graceful Shutdown Complete');
+		return process.exit(0);
+	});
 });

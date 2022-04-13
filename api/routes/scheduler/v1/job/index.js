@@ -6,29 +6,31 @@ router.use('/single', require('./single.js'));
 router.use('/future', require('./future.js'));
 
 router.use((err, req, res, next) => {
-  if (err instanceof ValidationError) {
-    let output = req.databag.output;
-    output.message = 'Request Failed';
-    output.error = err.validationErrors.body[0];
-    return res.status(400).send(output);
-  }
+	if (err instanceof ValidationError) {
+		let output = req.databag.output;
+		output.message = 'Request Failed';
+		output.error = err.validationErrors.body[0];
+		return res.status(400).send(output);
+	}
 
-  return next(err);
+	return next(err);
 });
 
+/* eslint-disable no-unused-vars */
 router.use((err, req, res, next) => {
-  let output = req.databag.output;
+	let output = req.databag.output;
 
-  if (err.isUserError === true) {
-    output.message = 'Request Failed';
-    output.error = err.message;
-    return res.status(400).send(output);
-  }
+	if (err.isUserError === true) {
+		output.message = 'Request Failed';
+		output.error = err.message;
+		return res.status(400).send(output);
+	}
 
-  output.message = 'Request Errored';
-  output.error = err.message;
+	output.message = 'Request Errored';
+	output.error = err.message;
 
-  return res.status(500).send(output);
+	return res.status(500).send(output);
 });
+/* eslint-enable no-unused-vars */
 
 module.exports = router;
