@@ -62,7 +62,9 @@ describe('Scheduler', function () {
           version: 1
         }, {
           jobId: 'test',
-          removeOnComplete: true
+          removeOnComplete: true,
+          removeOnFail: true,
+          attempts: 3
         }, null, null);
 
         scheduler.AddSingleJob('default', 'test', {}, function (err) {
@@ -80,7 +82,9 @@ describe('Scheduler', function () {
           version: 1
         }, {
           jobId: 'test',
-          removeOnComplete: true
+          removeOnComplete: true,
+          removeOnFail: true,
+          attempts: 3
         }, null, 'Something Broke');
 
         scheduler.AddSingleJob('default', 'test', {}, function (err) {
@@ -103,7 +107,9 @@ describe('Scheduler', function () {
           version: 1
         }, {
           jobId: 'test',
-          removeOnComplete: true
+          removeOnComplete: true,
+          removeOnFail: true,
+          attempts: 3
         }, null, 'throw');
 
         scheduler.AddSingleJob('default', 'test', {}, function (err) {
@@ -133,7 +139,9 @@ describe('Scheduler', function () {
         }, {
           jobId: 'test',
           delay: 60000,
-          removeOnComplete: true
+          removeOnComplete: true,
+          removeOnFail: true,
+          attempts: 3
         }, null, null);
 
         scheduler.AddFutureJob('default', 'test', {}, 60, function (err) {
@@ -152,7 +160,9 @@ describe('Scheduler', function () {
         }, {
           jobId: 'test',
           delay: 60000,
-          removeOnComplete: true
+          removeOnComplete: true,
+          removeOnFail: true,
+          attempts: 3
         }, null, 'Something Broke');
 
         scheduler.AddFutureJob('default', 'test', {}, 60, function (err) {
@@ -184,7 +194,9 @@ describe('Scheduler', function () {
           repeat: {
             cron: '*/5 * * * *'
           },
-          removeOnComplete: true
+          removeOnComplete: true,
+          removeOnFail: true,
+          attempts: 3
         }, '*/5 * * * *', null, [{ id: 'notTest' }]);
 
         let qfExists = sinon.stub(queueFactory, 'Exists').callsFake(function (queue) {
@@ -215,7 +227,9 @@ describe('Scheduler', function () {
           repeat: {
             cron: '*/5 * * * *'
           },
-          removeOnComplete: true
+          removeOnComplete: true,
+          removeOnFail: true,
+          attempts: 3
         }, '*/5 * * * *', null, [], 'Something Broke w/ jobs');
 
         let qfExists = sinon.stub(queueFactory, 'Exists').callsFake(function (queue) {
@@ -247,7 +261,9 @@ describe('Scheduler', function () {
           repeat: {
             cron: '*/5 * * * *'
           },
-          removeOnComplete: true
+          removeOnComplete: true,
+          removeOnFail: true,
+          attempts: 3
         }, '*/5 * * * *', null, []);
 
         let qfExists = sinon.stub(queueFactory, 'Exists').callsFake(function (queue) {
@@ -279,7 +295,9 @@ describe('Scheduler', function () {
           repeat: {
             cron: '*/5 * * * *'
           },
-          removeOnComplete: true
+          removeOnComplete: true,
+          removeOnFail: true,
+          attempts: 3
         }, null, 'Something Broke', []);
 
         let qfExists = sinon.stub(queueFactory, 'Exists').callsFake(function (queue) {
@@ -311,7 +329,9 @@ describe('Scheduler', function () {
           repeat: {
             cron: '*/5 * * * *'
           },
-          removeOnComplete: true
+          removeOnComplete: true,
+          removeOnFail: true,
+          attempts: 3
         }, '*/5 * * * *', null, [{ id: 'test' }]);
 
         let qfExists = sinon.stub(queueFactory, 'Exists').callsFake(function (queue) {

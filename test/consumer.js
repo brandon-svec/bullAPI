@@ -153,7 +153,13 @@ describe('Consumer Handler', function () {
           payload: {
             a: 'alpha'
           }
-        }
+        },
+        timestamp: 1649804215,
+        processedOn: 1649804238,
+        opts: {
+          attempts: 2
+        },
+        attemptsMade: 0
       };
 
       let stub = sinon.stub(defaultQueue, 'ProcessWork').callsFake(function (jobObject, cb) {
@@ -176,7 +182,13 @@ describe('Consumer Handler', function () {
           payload: {
             a: 'alpha'
           }
-        }
+        },
+        timestamp: 1649804215,
+        processedOn: 1649804238,
+        opts: {
+          attempts: 2
+        },
+        attemptsMade: 0
       };
 
       let stub = sinon.stub(defaultQueue, 'ProcessWork').callsFake(function (jobObject, cb) {
@@ -200,7 +212,13 @@ describe('Consumer Handler', function () {
           payload: {
             a: 'alpha'
           }
-        }
+        },
+        timestamp: 1649804215,
+        processedOn: 1649804238,
+        opts: {
+          attempts: 2
+        },
+        attemptsMade: 0
       };
 
       let stub = sinon.stub(defaultQueue, 'ProcessWork').callsFake(function (jobObject, cb) {
@@ -224,13 +242,48 @@ describe('Consumer Handler', function () {
           payload: {
             a: 'alpha'
           }
-        }
+        },
+        timestamp: 1649804215,
+        processedOn: 1649804238,
+        opts: {
+          attempts: 2
+        },
+        attemptsMade: 0
       };
 
       let stub = sinon.stub(defaultQueue, 'ProcessWork').callsFake(function (jobObject, cb) {
         assert.isObject(jobObject);
         assert.deepEqual(jobObject, input);
         return cb(new EnhancedError('Something Broke', true));
+      });
+
+      processHandler(input, function (err) {
+        assert.isUndefined(err);
+        assert.isTrue(stub.calledOnce);
+        stub.restore();
+        done();
+      });
+    });
+
+    it('Irrecoverable Error - Exceed Retry', function (done) {
+      let input = {
+        data: {
+          payload: {
+            a: 'alpha'
+          }
+        },
+        timestamp: 1649804215,
+        processedOn: 1649804238,
+        opts: {
+          attempts: 2
+        },
+        attemptsMade: 1
+      };
+
+      let stub = sinon.stub(defaultQueue, 'ProcessWork').callsFake(function (jobObject, cb) {
+        assert.isObject(jobObject);
+        assert.deepEqual(jobObject, input);
+        return cb(new EnhancedError('Something Broke', false));
       });
 
       processHandler(input, function (err) {
