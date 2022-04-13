@@ -43,6 +43,43 @@ config.actions = {
 
 };
 
+// ** Bull
+
+config.bull = {
+  queue: {
+    settings: {
+      backoffStrategies: {
+        jitter: function (attemptsMade, err) {
+          return 5000 + Math.random() * 500;
+        },
+        exponential: function (attemptsMade, err) {
+          const delay = (5000 * attemptsMade) + (Math.random() * 5000);
+          if (delay > 300000) {
+            return 300000;
+          }
+          
+          return delay;
+        }
+      }
+    }
+  },
+  consumer: {
+    default: {
+      attempts: 3,
+      removeOnFail: true
+    },
+    queue: {
+      myQueue: {
+        attempts: 1000,
+        backoff: {
+          type: 'jitter'
+        },
+        removeOnFail: true
+      }
+    }    
+  }
+}
+
 // Export
 
 module.exports = config;

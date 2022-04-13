@@ -11,6 +11,13 @@ const config = {
         rejectUnauthorized: false
       }
     }
+  },
+  bull: {
+    queue: {
+      settings: {
+        stackTraceLimit: 10
+      }
+    }
   }
 };
 
