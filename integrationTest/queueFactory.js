@@ -24,6 +24,19 @@ describe('Queue Factory', function () {
 			assert.isTrue(queue.clientInitialized);
 			done();
 		});
+    
+		it('Get Custom Queue', function (done) {
+			let queue = queueFactory.GetQueue('myQueue');
+			assert.isObject(queue);
+			assert.equal(queue.name, 'myQueue');
+			assert.deepEqual(queue.limiter, {
+				max: 1,
+				duration: 10000
+			});
+			assert.equal(queue.settings.retryProcessDelay, 5000);
+			assert.isTrue(queue.clientInitialized);
+			done();
+		});
 	});
 
 	describe('Queue Exists', function () {
