@@ -46,29 +46,41 @@ config.actions = {
 // ** Bull
 
 config.bull = {
-	queue: {
-		settings: {
-			backoffStrategies: {
-				jitter: function () {
-					return 5000 + Math.random() * 500;
-				},
-				exponential: function (attemptsMade) {
-					const delay = (5000 * attemptsMade) + (Math.random() * 5000);
-					if (delay > 300000) {
-						return 300000;
-					}
-          
-					return delay;
-				}
-			}
-		}
+  queueFactory: {
+    default: {
+      settings: {
+        backoffStrategies: {
+          jitter: function () {
+            return 5000 + Math.random() * 500;
+          },
+          exponential: function (attemptsMade) {
+            const delay = (5000 * attemptsMade) + (Math.random() * 5000);
+            if (delay > 300000) {
+              return 300000;
+            }
+
+            return delay;
+          }
+        }
+      }
+    },
+    queue: {
+      myQueue: {
+        limiter: {
+          max: 1,
+          duration: 10000
+        }
+      }
+    }
 	},
 	consumer: {
 		default: {
-			attempts: 3,
-			removeOnFail: true
+			attempts: 3
 		},
-		queue: {
+    queue: {
+      myQueue: {
+        attempts: 100
+      }
 		}    
 	}
 };
