@@ -67,7 +67,8 @@ config.bull = {
 		queue: {
 		}
 	},
-	consumer: {
+  consumer: {
+    batchSize: 3,
 		default: {
 			attempts: 3
 		},
