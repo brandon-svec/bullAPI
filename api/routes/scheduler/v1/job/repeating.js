@@ -15,9 +15,7 @@ router.post('/:queue/', validate({ body: schemas.post }), queueCheck, (req, res,
       return next(err);
     }
 
-    req.databag.output.message = 'Request Successful';
-    req.databag.output.schedule = schedule;
-    return res.status(200).send(req.databag.output);
+    return res.sendWrappedSuccess({ schedule });
   });
 });
 
@@ -27,9 +25,7 @@ router.get('/:queue/', (req, res, next) => {
       return next(err);
     }
 
-    req.databag.output.message = 'Request Successful';
-    req.databag.output.jobList = jobList;
-    return res.status(200).send(req.databag.output);
+    return res.sendWrappedSuccess({ jobList });
   });
 });
 
@@ -39,8 +35,7 @@ router.delete('/:queue/:name', (req, res, next) => {
       return next(err);
     }
 
-    req.databag.output.message = 'Request Successful';
-    return res.status(200).send(req.databag.output);
+    return res.sendWrappedSuccess();
   });
 });
 

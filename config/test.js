@@ -2,7 +2,11 @@
 
 // General
 
-const config = {};
+const config = {
+  http: {
+    timeout: 10
+  }
+};
 
 // ** Logging
 

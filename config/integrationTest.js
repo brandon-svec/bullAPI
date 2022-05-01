@@ -1,8 +1,9 @@
 require('events').EventEmitter.prototype._maxListeners = 100;
 
 const config = {
-  redis: {},
-  logging: {}
+  http: {
+    timeout: 30000
+  }
 };
 
 config.logging = {
@@ -43,5 +44,7 @@ config.bull = {
     }
   }
 };
+
+// Export
 
 module.exports = config;

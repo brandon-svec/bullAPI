@@ -108,7 +108,7 @@ describe('HTTP Tests', function () {
             assert.isNull(err);
             assert.isNotNull(res.body.id);
             assert.equal(res.body.message, 'Request Failed');
-            assert.equal(res.body.error, 'Content-Type Must be application/json');
+            assert.equal(res.body.error, 'Content-Type must be application/json');
             done();
           });
       });
@@ -160,16 +160,7 @@ describe('HTTP Tests', function () {
             assert.isNull(err);
             assert.isNotNull(res.body.id);
             assert.equal(res.body.message, 'Request Failed');
-            assert.deepEqual(res.body.error,
-              {
-                dataPath: '',
-                keyword: 'additionalProperties',
-                message: 'should NOT have additional properties',
-                params: {
-                  additionalProperty: 'a'
-                },
-                schemaPath: '#/additionalProperties'
-              });
+            assert.equal(res.body.error, ' should NOT have additional properties - {"additionalProperty":"a"}');
             done();
           });
       });
@@ -243,6 +234,44 @@ describe('HTTP Tests', function () {
             assert.equal(res.body.message, 'Request Failed');
             assert.equal(res.body.error, 'Something Broke');
             assert.isTrue(stub.calledOnce);
+            done();
+          });
+      });
+
+      it('Bad content-type', function (done) {
+        client
+          .post('/mirror')
+          .set('Content-type', 'text')
+          .send('input')
+          .expect(400)
+          .end(function (err, res) {
+            assert.isNull(err);
+            assert.isNotNull(res.body);
+            assert.isObject(res.body);
+            assert.isNotNull(res.body.message);
+            assert.isNotNull(res.body.error);
+            assert.equal(res.body.message, 'Request Failed');
+            // eslint-disable-next-line
+            assert.equal(res.body.error, 'Content-Type must be application/json');
+            done();
+          });
+      });
+
+      it('Bad content-type', function (done) {
+        client
+          .post('/mirror')
+          .set('Content-type', 'text')
+          .send('input')
+          .expect(400)
+          .end(function (err, res) {
+            assert.isNull(err);
+            assert.isNotNull(res.body);
+            assert.isObject(res.body);
+            assert.isNotNull(res.body.message);
+            assert.isNotNull(res.body.error);
+            assert.equal(res.body.message, 'Request Failed');
+            // eslint-disable-next-line
+            assert.equal(res.body.error, 'Content-Type must be application/json');
             done();
           });
       });
@@ -362,16 +391,7 @@ describe('HTTP Tests', function () {
             assert.isNull(err);
             assert.isNotNull(res.body.id);
             assert.equal(res.body.message, 'Request Failed');
-            assert.deepEqual(res.body.error,
-              {
-                dataPath: '',
-                keyword: 'additionalProperties',
-                message: 'should NOT have additional properties',
-                params: {
-                  additionalProperty: 'a'
-                },
-                schemaPath: '#/additionalProperties'
-              });
+            assert.equal(res.body.error, ' should NOT have additional properties - {"additionalProperty":"a"}');
             done();
           });
       });
@@ -389,16 +409,7 @@ describe('HTTP Tests', function () {
             assert.isNull(err);
             assert.isNotNull(res.body.id);
             assert.equal(res.body.message, 'Request Failed');
-            assert.deepEqual(res.body.error,
-              {
-                dataPath: '',
-                keyword: 'required',
-                message: 'should have required property \'delaySec\'',
-                params: {
-                  missingProperty: 'delaySec'
-                },
-                schemaPath: '#/required'
-              });
+            assert.equal(res.body.error, ' should have required property \'delaySec\' - {"missingProperty":"delaySec"}');
             done();
           });
       });
@@ -518,16 +529,7 @@ describe('HTTP Tests', function () {
               assert.isNull(err);
               assert.isNotNull(res.body.id);
               assert.equal(res.body.message, 'Request Failed');
-              assert.deepEqual(res.body.error,
-                {
-                  dataPath: '',
-                  keyword: 'additionalProperties',
-                  message: 'should NOT have additional properties',
-                  params: {
-                    additionalProperty: 'a'
-                  },
-                  schemaPath: '#/additionalProperties'
-                });
+              assert.equal(res.body.error, ' should NOT have additional properties - {"additionalProperty":"a"}');
               done();
             });
         });
@@ -545,16 +547,7 @@ describe('HTTP Tests', function () {
               assert.isNull(err);
               assert.isNotNull(res.body.id);
               assert.equal(res.body.message, 'Request Failed');
-              assert.deepEqual(res.body.error,
-                {
-                  dataPath: '',
-                  keyword: 'required',
-                  message: 'should have required property \'uniqueName\'',
-                  params: {
-                    missingProperty: 'uniqueName'
-                  },
-                  schemaPath: '#/required'
-                });
+              assert.equal(res.body.error, ' should have required property \'uniqueName\' - {"missingProperty":"uniqueName"}');
               done();
             });
         });
@@ -573,16 +566,7 @@ describe('HTTP Tests', function () {
               assert.isNull(err);
               assert.isNotNull(res.body.id);
               assert.equal(res.body.message, 'Request Failed');
-              assert.deepEqual(res.body.error,
-                {
-                  dataPath: '',
-                  keyword: 'required',
-                  message: 'should have required property \'intervalMinutes\'',
-                  params: {
-                    missingProperty: 'intervalMinutes'
-                  },
-                  schemaPath: '#/required'
-                });
+              assert.equal(res.body.error, ' should have required property \'intervalMinutes\' - {"missingProperty":"intervalMinutes"}');
               done();
             });
         });

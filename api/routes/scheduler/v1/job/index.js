@@ -7,10 +7,8 @@ router.use('/future', require('./future.js'));
 
 router.use((err, req, res, next) => {
   if (err instanceof ValidationError) {
-    const output = req.databag.output;
-    output.message = 'Request Failed';
-    output.error = err.validationErrors.body[0];
-    return res.status(400).send(output);
+    const ajv = err.validationErrors.body[0];
+    return res.sendWrappedFailure(new Error(`${ajv.dataPath} ${ajv.message} - ${JSON.stringify(ajv.params)}`));
   }
 
   return next(err);
@@ -18,18 +16,11 @@ router.use((err, req, res, next) => {
 
 /* eslint-disable no-unused-vars */
 router.use((err, req, res, next) => {
-  const output = req.databag.output;
-
   if (err.isUserError === true) {
-    output.message = 'Request Failed';
-    output.error = err.message;
-    return res.status(400).send(output);
+    return res.sendWrappedFailure(err);
   }
 
-  output.message = 'Request Errored';
-  output.error = err.message;
-
-  return res.status(500).send(output);
+  return res.sendWrappedError(err);
 });
 /* eslint-enable no-unused-vars */
 

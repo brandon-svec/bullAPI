@@ -15,8 +15,7 @@ router.post('/:queue/', validate({ body: schemas.post }), queueCheck, (req, res,
       return next(err);
     }
 
-    req.databag.output.message = 'Request Successful';
-    return res.status(200).send(req.databag.output);
+    return res.sendWrappedSuccess();
   });
 });
 
