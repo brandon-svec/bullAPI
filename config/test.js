@@ -2,25 +2,25 @@
 
 // General
 
-var config = {};
+const config = {};
 
 // ** Logging
 
 config.logging = {
-	enabled: false
+  enabled: false
 };
 
 config.actions = {
 };
 
 config.bull = {
-	consumer: {
-		queue: {
-			myQueue: {
-				attempts: 5
-			}
-		}
-	}
+  consumer: {
+    queue: {
+      myQueue: {
+        attempts: 5
+      }
+    }
+  }
 };
 
 // Export

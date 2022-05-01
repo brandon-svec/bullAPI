@@ -8,7 +8,7 @@ const pino = require('pino');
 // Export
 
 module.exports = {
-	run: fn_run
+  run: fn_run
 };
 
 // Configs
@@ -20,88 +20,88 @@ const log = pino(config.get('logging'));
 // Routes
 
 function fn_run (req, res, next) {
-	req.id = uuid.v4();
+  req.id = uuid.v4();
 
-	req.databag = {
-		output: {
-			requestId: req.id,
-			message: ''
-		},
-		databag: {
-			logData: {}
-		}
-	};
+  req.databag = {
+    output: {
+      requestId: req.id,
+      message: ''
+    },
+    databag: {
+      logData: {}
+    }
+  };
 
-	req.requestTime = Date.now();
+  req.requestTime = Date.now();
 
-	// HTTP Request Error
-	req.on('error', fn_request_processError);
+  // HTTP Request Error
+  req.on('error', fn_request_processError);
 
-	// HTTP Request Timeout
-	setTimeout(fn_request_processTimeout, config.http.timeout);
+  // HTTP Request Timeout
+  setTimeout(fn_request_processTimeout, config.http.timeout);
 
-	// HTTP Response Error
-	res.on('error', fn_response_processError);
+  // HTTP Response Error
+  res.on('error', fn_response_processError);
 
-	// HTTP Connection Closed
-	res.on('abort', fn_response_processClose);
+  // HTTP Connection Closed
+  res.on('abort', fn_response_processClose);
 
-	// Done
-	next();
+  // Done
+  next();
 
-	// *** Local Functions ***
+  // *** Local Functions ***
 
-	function fn_request_processError (err) {
-		var logObj = fn_buildLog(req, res);
-		logObj.Error = err;
+  function fn_request_processError (err) {
+    const logObj = fn_buildLog(req, res);
+    logObj.Error = err;
 
-		log.error(logObj, 'Request Errored');
-	}
+    log.error(logObj, 'Request Errored');
+  }
 
-	function fn_request_processTimeout () {
-		if (!res.headersSent) {
-			res.status(408).send('Request Timed Out');
+  function fn_request_processTimeout () {
+    if (!res.headersSent) {
+      res.status(408).send('Request Timed Out');
 
-			var logObj = fn_buildLog(req, res);
-			logObj.Error = 'Request Timed Out';
+      const logObj = fn_buildLog(req, res);
+      logObj.Error = 'Request Timed Out';
 
-			log.warn(logObj, 'Request Errored');
-		}
-	}
+      log.warn(logObj, 'Request Errored');
+    }
+  }
 
-	function fn_response_processError (err) {
-		var logObj = fn_buildLog(req, res);
-		logObj.Error = err;
+  function fn_response_processError (err) {
+    const logObj = fn_buildLog(req, res);
+    logObj.Error = err;
 
-		log.error(logObj, 'Response Errored');
-	}
+    log.error(logObj, 'Response Errored');
+  }
 
-	function fn_response_processClose () {
-		var logObj = fn_buildLog(req, res);
+  function fn_response_processClose () {
+    const logObj = fn_buildLog(req, res);
 
-		log.warn(logObj, 'Connection Closed');
-	}
+    log.warn(logObj, 'Connection Closed');
+  }
 }
 
 // Functions
 
 function fn_buildLog (req, res) {
-	var output = {};
+  const output = {};
 
-	output.RequestID = req.id;
-	if (res.headersSent) {
-		output.statusCode = res.statusCode;
-	}
-	output.sourceIP = req.ip;
-	output.timeTaken = Date.now() - req.requestTime;
-	if (req.body) {
-		output.requestSize = req.body.length;
-	}
-	output.route = req.path;
+  output.RequestID = req.id;
+  if (res.headersSent) {
+    output.statusCode = res.statusCode;
+  }
+  output.sourceIP = req.ip;
+  output.timeTaken = Date.now() - req.requestTime;
+  if (req.body) {
+    output.requestSize = req.body.length;
+  }
+  output.route = req.path;
 
-	if (res.body) {
-		output.responseSize = res.body.length;
-	}
+  if (res.body) {
+    output.responseSize = res.body.length;
+  }
 
-	return output;
+  return output;
 }
